@@ -29,25 +29,28 @@ func main() {
 		fmt.Printf("Ошибка демаршалинга: %v\n", err)
 	}
 
-	// fmt.Println(unpacked)
+	// file, err := os.Create("output.json")
+	// if err != nil {
+	// 	fmt.Printf("Ошибка создания файла: %v\n", err)
+	// }
+	// defer file.Close()
 
-	file, err := os.Create("output.json")
+	// indented, err := json.MarshalIndent(deserializedBody, "", "  ")
+	// if err != nil {
+	// 	fmt.Printf("Ошибка форматирования: %v\n", err)
+	// }
+
+	// _, err = file.Write(indented)
+	// if err != nil {
+	// 	fmt.Printf("Ошибка записи в файл: %v\n", err)
+	// }
+
+	// fmt.Println("Данные сохранены! 🎉")
+
+	err = SaveDataToJsonFile(deserializedBody, "output2.json")
 	if err != nil {
-		fmt.Printf("Ошибка создания файла: %v\n", err)
+		fmt.Printf("Ошибка сохранения данных: %v\n", err)
 	}
-	defer file.Close()
-
-	indented, err := json.MarshalIndent(deserializedBody, "", "  ")
-	if err != nil {
-		fmt.Printf("Ошибка форматирования: %v\n", err)
-	}
-
-	_, err = file.Write(indented)
-	if err != nil {
-		fmt.Printf("Ошибка записи в файл: %v\n", err)
-	}
-
-	fmt.Println("Данные сохранены! 🎉")
 }
 
 func SetUrlRarams(url *string) {
@@ -91,4 +94,26 @@ func DeserializeHttpResponseBody(body []byte) (*model.VacancyResponse, error) {
 	}
 
 	return &unpacked, nil
+}
+
+func SaveDataToJsonFile(data *model.VacancyResponse, filename string) error {
+	file, err := os.Create(filename)
+	if err != nil {
+		fmt.Printf("Ошибка создания файла: %v\n", err)
+	}
+	defer file.Close()
+
+	indented, err := json.MarshalIndent(&data, "", "  ")
+	if err != nil {
+		fmt.Printf("Ошибка форматирования: %v\n", err)
+	}
+
+	_, err = file.Write(indented)
+	if err != nil {
+		fmt.Printf("Ошибка записи в файл: %v\n", err)
+	}
+
+	fmt.Println("Данные сохранены! 🎉")
+
+	return nil
 }
