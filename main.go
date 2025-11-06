@@ -29,25 +29,7 @@ func main() {
 		fmt.Printf("Ошибка демаршалинга: %v\n", err)
 	}
 
-	// file, err := os.Create("output.json")
-	// if err != nil {
-	// 	fmt.Printf("Ошибка создания файла: %v\n", err)
-	// }
-	// defer file.Close()
-
-	// indented, err := json.MarshalIndent(deserializedBody, "", "  ")
-	// if err != nil {
-	// 	fmt.Printf("Ошибка форматирования: %v\n", err)
-	// }
-
-	// _, err = file.Write(indented)
-	// if err != nil {
-	// 	fmt.Printf("Ошибка записи в файл: %v\n", err)
-	// }
-
-	// fmt.Println("Данные сохранены! 🎉")
-
-	err = SaveDataToJsonFile(deserializedBody, "output2.json")
+	err = SaveDataToJsonFile(deserializedBody, "output.json")
 	if err != nil {
 		fmt.Printf("Ошибка сохранения данных: %v\n", err)
 	}
@@ -99,18 +81,18 @@ func DeserializeHttpResponseBody(body []byte) (*model.VacancyResponse, error) {
 func SaveDataToJsonFile(data *model.VacancyResponse, filename string) error {
 	file, err := os.Create(filename)
 	if err != nil {
-		fmt.Printf("Ошибка создания файла: %v\n", err)
+		return fmt.Errorf("ошибка создания файла: %v", err)
 	}
 	defer file.Close()
 
-	indented, err := json.MarshalIndent(&data, "", "  ")
+	indented, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
-		fmt.Printf("Ошибка форматирования: %v\n", err)
+		return fmt.Errorf("ошибка форматирования данных: %v", err)
 	}
 
 	_, err = file.Write(indented)
 	if err != nil {
-		fmt.Printf("Ошибка записи в файл: %v\n", err)
+		return fmt.Errorf("ошибка записи данных в файл: %v", err)
 	}
 
 	fmt.Println("Данные сохранены! 🎉")
