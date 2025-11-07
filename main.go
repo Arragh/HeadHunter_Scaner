@@ -15,42 +15,111 @@ func main() {
 		"👋 Hello, World!",
 	)
 
-	var baseUrl = "https://api.hh.ru/vacancies"
-
-	buildedUrl, err := BuildUrl(baseUrl)
+	oldVacancies, err := getOldVacancies()
 	if err != nil {
-		fmt.Printf("Ошибка построения URL: %v\n", err)
+		fmt.Printf("Ошибка получения ID старых вакансий: %v\n", err)
 		panic(err)
 	}
 
-	body, err := GetHttpResponseBody(buildedUrl)
+	newVacancies, err := getNewVacancies()
 	if err != nil {
-		fmt.Printf("Ошибка запроса: %v\n", err)
+		fmt.Printf("Ошибка получения новых вакансий: %v\n", err)
 		panic(err)
 	}
 
-	deserializedBody, err := DeserializeHttpResponseBody(body)
-	if err != nil {
-		fmt.Printf("Ошибка демаршалинга: %v\n", err)
-		panic(err)
+	var dif = difference(*oldVacancies, *newVacancies)
+	if len(dif) > 0 {
+		fmt.Println("============================")
+		fmt.Println("Имеются новые вакансии:")
+
+		for i := range dif {
+			fmt.Println(dif[i].Url)
+		}
+
+		fmt.Println("============================")
 	}
 
-	oldVacancies, err := ReadDataFromJsonFile("output.json")
-	if err != nil {
-		fmt.Printf("Ошибка чтения данных: %v\n", err)
-		panic(err)
-	}
+	var meshedVacancies = meshOldAndNewVacancies(*oldVacancies, *newVacancies)
 
-	fmt.Println(oldVacancies)
-
-	err = SaveDataToJsonFile(deserializedBody, "output.json")
+	err = saveDataToJsonFile(meshedVacancies, "output.json")
 	if err != nil {
 		fmt.Printf("Ошибка сохранения данных: %v\n", err)
 		panic(err)
 	}
 }
 
-func BuildUrl(baseUrl string) (string, error) {
+func meshOldAndNewVacancies(newVacancies, oldVacancies []model.Vacancy) *[]model.Vacancy {
+	var result []model.Vacancy
+
+	seen := make(map[string]bool)
+	for _, v := range append(oldVacancies, newVacancies...) {
+		if !seen[v.Id] {
+			seen[v.Id] = true
+			result = append(result, v)
+		}
+	}
+
+	return &result
+}
+
+func difference(newVacancies, oldVacancies []model.Vacancy) []model.Vacancy {
+	// Создаём map для быстрой проверки наличия в a
+	inA := make(map[string]bool)
+	for _, v := range newVacancies {
+		inA[v.Id] = true
+	}
+
+	var result []model.Vacancy
+
+	for _, v := range oldVacancies {
+		if !inA[v.Id] { // если элемента нет в a
+			result = append(result, v)
+		}
+	}
+
+	return result
+}
+
+func getOldVacancies() (*[]model.Vacancy, error) {
+	oldVacancies, err := readDataFromJsonFile("output.json")
+	if err != nil {
+		return nil, fmt.Errorf("ошибка чтения данных: %v", err)
+	}
+
+	return oldVacancies, nil
+}
+
+func getNewVacancies() (*[]model.Vacancy, error) {
+	var baseUrl = "https://api.hh.ru/vacancies"
+
+	buildedUrl, err := buildUrl(baseUrl)
+	if err != nil {
+		return nil, fmt.Errorf("ошибка построения URL: %v", err)
+	}
+
+	body, err := getHttpResponseBody(buildedUrl)
+	if err != nil {
+		return nil, fmt.Errorf("ошибка получения тела ответа: %v", err)
+	}
+
+	newVacancies, err := deserializeHttpResponseBody(body)
+	if err != nil {
+		return nil, fmt.Errorf("ошибка демаршалинга: %v", err)
+	}
+
+	return &newVacancies.Items, nil
+}
+
+func getVacanciesIds(vacancies *[]model.Vacancy) *[]string {
+	var vacanciesIds []string
+	for _, vacancy := range *vacancies {
+		vacanciesIds = append(vacanciesIds, vacancy.Id)
+	}
+
+	return &vacanciesIds
+}
+
+func buildUrl(baseUrl string) (string, error) {
 	parsedUrl, err := url.Parse(baseUrl)
 	if err != nil {
 		return "", fmt.Errorf("ошибка парсинга URL: %v", err)
@@ -69,7 +138,7 @@ func BuildUrl(baseUrl string) (string, error) {
 	return parsedUrl.String(), nil
 }
 
-func GetHttpResponseBody(url string) ([]byte, error) {
+func getHttpResponseBody(url string) ([]byte, error) {
 	resp, err := http.Get(url)
 	if err != nil {
 		return nil, fmt.Errorf("ошибка запроса: %v", err)
@@ -88,7 +157,7 @@ func GetHttpResponseBody(url string) ([]byte, error) {
 	return body, nil
 }
 
-func DeserializeHttpResponseBody(body []byte) (*model.VacancyResponse, error) {
+func deserializeHttpResponseBody(body []byte) (*model.VacancyResponse, error) {
 	var unpacked model.VacancyResponse
 
 	err := json.Unmarshal(body, &unpacked)
@@ -99,10 +168,10 @@ func DeserializeHttpResponseBody(body []byte) (*model.VacancyResponse, error) {
 	return &unpacked, nil
 }
 
-func ReadDataFromJsonFile(filename string) (*model.VacancyResponse, error) {
+func readDataFromJsonFile(filename string) (*[]model.Vacancy, error) {
 	_, err := os.Stat(filename)
 	if err != nil && os.IsNotExist(err) {
-		err = os.WriteFile(filename, []byte(`{"items":[]}`), 0644)
+		err = os.WriteFile(filename, []byte(`[]`), 0644)
 		if err != nil {
 			return nil, fmt.Errorf("ошибка записи в чистый файл: %v", err)
 		}
@@ -120,7 +189,7 @@ func ReadDataFromJsonFile(filename string) (*model.VacancyResponse, error) {
 		return nil, fmt.Errorf("ошибка чтения файла: %v", err)
 	}
 
-	var unpacked model.VacancyResponse
+	var unpacked []model.Vacancy
 
 	err = json.Unmarshal(byteData, &unpacked)
 	if err != nil {
@@ -130,7 +199,7 @@ func ReadDataFromJsonFile(filename string) (*model.VacancyResponse, error) {
 	return &unpacked, nil
 }
 
-func SaveDataToJsonFile(data *model.VacancyResponse, filename string) error {
+func saveDataToJsonFile(data *[]model.Vacancy, filename string) error {
 	file, err := os.Create(filename)
 	if err != nil {
 		return fmt.Errorf("ошибка создания файла: %v", err)
