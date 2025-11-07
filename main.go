@@ -20,22 +20,33 @@ func main() {
 	buildedUrl, err := BuildUrl(baseUrl)
 	if err != nil {
 		fmt.Printf("Ошибка построения URL: %v\n", err)
+		panic(err)
 	}
 
 	body, err := GetHttpResponseBody(buildedUrl)
 	if err != nil {
 		fmt.Printf("Ошибка запроса: %v\n", err)
-		return
+		panic(err)
 	}
 
 	deserializedBody, err := DeserializeHttpResponseBody(body)
 	if err != nil {
 		fmt.Printf("Ошибка демаршалинга: %v\n", err)
+		panic(err)
 	}
+
+	oldVacancies, err := ReadDataFromJsonFile("output.json")
+	if err != nil {
+		fmt.Printf("Ошибка чтения данных: %v\n", err)
+		panic(err)
+	}
+
+	fmt.Println(oldVacancies)
 
 	err = SaveDataToJsonFile(deserializedBody, "output.json")
 	if err != nil {
 		fmt.Printf("Ошибка сохранения данных: %v\n", err)
+		panic(err)
 	}
 }
 
@@ -81,6 +92,37 @@ func DeserializeHttpResponseBody(body []byte) (*model.VacancyResponse, error) {
 	var unpacked model.VacancyResponse
 
 	err := json.Unmarshal(body, &unpacked)
+	if err != nil {
+		return nil, fmt.Errorf("ошибка демаршалинга: %v", err)
+	}
+
+	return &unpacked, nil
+}
+
+func ReadDataFromJsonFile(filename string) (*model.VacancyResponse, error) {
+	_, err := os.Stat(filename)
+	if err != nil && os.IsNotExist(err) {
+		err = os.WriteFile(filename, []byte(`{"items":[]}`), 0644)
+		if err != nil {
+			return nil, fmt.Errorf("ошибка записи в чистый файл: %v", err)
+		}
+	}
+
+	file, err := os.Open(filename)
+	if err != nil {
+		return nil, fmt.Errorf("ошибка открытия файла: %v", err)
+	}
+
+	defer file.Close()
+
+	byteData, err := io.ReadAll(file)
+	if err != nil {
+		return nil, fmt.Errorf("ошибка чтения файла: %v", err)
+	}
+
+	var unpacked model.VacancyResponse
+
+	err = json.Unmarshal(byteData, &unpacked)
 	if err != nil {
 		return nil, fmt.Errorf("ошибка демаршалинга: %v", err)
 	}
