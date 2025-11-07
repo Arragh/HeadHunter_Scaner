@@ -18,13 +18,13 @@ func MergeVacancies(newVacancies, oldVacancies []model.Vacancy) *[]model.Vacancy
 
 func Difference(newVacancies, oldVacancies []model.Vacancy) []model.Vacancy {
 	inA := make(map[string]bool)
-	for _, v := range newVacancies {
+	for _, v := range oldVacancies {
 		inA[v.Id] = true
 	}
 
 	var result []model.Vacancy
 
-	for _, v := range oldVacancies {
+	for _, v := range newVacancies {
 		if !inA[v.Id] {
 			result = append(result, v)
 		}

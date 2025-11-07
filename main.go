@@ -27,7 +27,7 @@ func main() {
 		panic(err)
 	}
 
-	var dif = vacancy.Difference(*oldVacancies, *newVacancies)
+	var dif = vacancy.Difference(*newVacancies, *oldVacancies)
 	if len(dif) > 0 {
 		go notification.TriggerAlert(&dif)
 	}
