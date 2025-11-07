@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 )
 
@@ -14,11 +15,14 @@ func main() {
 		"👋 Hello, World!",
 	)
 
-	var url = "https://api.hh.ru/vacancies"
+	var baseUrl = "https://api.hh.ru/vacancies"
 
-	SetUrlRarams(&url)
+	buildedUrl, err := BuildUrl(baseUrl)
+	if err != nil {
+		fmt.Printf("Ошибка построения URL: %v\n", err)
+	}
 
-	body, err := GetHttpResponseBody(url)
+	body, err := GetHttpResponseBody(buildedUrl)
 	if err != nil {
 		fmt.Printf("Ошибка запроса: %v\n", err)
 		return
@@ -35,17 +39,23 @@ func main() {
 	}
 }
 
-func SetUrlRarams(url *string) {
-	var area = fmt.Sprintf("area=%d", 113)
-	var period = fmt.Sprintf("period=%d", 30)
-	var workFormat = fmt.Sprintf("work_format=%s", "REMOTE")
-	var searchField = fmt.Sprintf("search_field=%s", "name")
-	var includeWords = fmt.Sprintf("text=%s", "C%23")
-	var excludeWords = fmt.Sprintf("excluded_text=%s", "QA,AQA")
+func BuildUrl(baseUrl string) (string, error) {
+	parsedUrl, err := url.Parse(baseUrl)
+	if err != nil {
+		return "", fmt.Errorf("ошибка парсинга URL: %v", err)
+	}
 
-	var params = "?" + area + "&" + period + "&" + workFormat + "&" + searchField + "&" + includeWords + "&" + excludeWords
+	params := url.Values{}
+	params.Add("area", "113")
+	params.Add("period", "30")
+	params.Add("work_format", "REMOTE")
+	params.Add("search_field", "name")
+	params.Add("text", "C#")
+	params.Add("excluded_text", "QA,AQA")
 
-	*url += params
+	parsedUrl.RawQuery = params.Encode()
+
+	return parsedUrl.String(), nil
 }
 
 func GetHttpResponseBody(url string) ([]byte, error) {
