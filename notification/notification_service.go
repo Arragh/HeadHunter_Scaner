@@ -18,16 +18,16 @@ func TriggerAlert(vacancies *[]model.Vacancy) {
 	fmt.Println(time.Now().Format("15:04:05"))
 	fmt.Println(strings.Repeat("=", 50))
 
-	if runtime.GOOS == "darwin" {
-		playSoundAndNotify() // macOS
-	} else {
-		fmt.Print("\a") // Windows
-	}
+	playSoundAndNotify()
 }
 
 func playSoundAndNotify() {
-	go func() {
-		exec.Command("osascript", "-e", `beep`).Run()
-	}()
-	time.Sleep(time.Millisecond * 100)
+	for range 5 {
+		if runtime.GOOS == "darwin" {
+			exec.Command("osascript", "-e", `beep`).Run() // macOS
+		} else {
+			fmt.Print("\a") // Windows
+		}
+		time.Sleep(time.Microsecond * 500)
+	}
 }
