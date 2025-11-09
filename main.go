@@ -5,19 +5,22 @@ import (
 	"HeadHunter_Scaner/notification"
 	"HeadHunter_Scaner/storage"
 	"HeadHunter_Scaner/vacancy"
+	"bufio"
 	"fmt"
+	"os"
 	"time"
 )
 
 func main() {
+	fileName := "viewed_vacancies.json"
+	baseUrl := "https://api.hh.ru/vacancies"
+
 	for {
-		oldVacancies, err := storage.ReadDataFromFile("output.json")
+		oldVacanciesIds, err := storage.ReadDataFromFile(fileName)
 		if err != nil {
 			fmt.Printf("Ошибка получения старых вакансий: %v\n", err)
 			panic(err)
 		}
-
-		baseUrl := "https://api.hh.ru/vacancies"
 
 		newVacancies, err := client.FetchVacancies(baseUrl)
 		if err != nil {
@@ -25,11 +28,19 @@ func main() {
 			panic(err)
 		}
 
-		var dif = vacancy.Difference(*newVacancies, *oldVacancies)
+		dif, err := vacancy.Difference(*newVacancies, *oldVacanciesIds)
+		if err != nil {
+			fmt.Printf("Ошибка вычисления новых вакансий: %v\n", err)
+			panic(err)
+		}
 
-		var meshedVacancies = vacancy.MergeVacancies(*oldVacancies, *newVacancies)
+		mergedVacancies, err := vacancy.MergeVacancies(*oldVacanciesIds, *newVacancies)
+		if err != nil {
+			fmt.Printf("Ошибка объединения вакансий: %v\n", err)
+			panic(err)
+		}
 
-		err = storage.SaveDataToFile(meshedVacancies, "output.json")
+		err = storage.SaveDataToFile(mergedVacancies, fileName)
 		if err != nil {
 			fmt.Printf("Ошибка сохранения данных: %v\n", err)
 			panic(err)
@@ -37,8 +48,16 @@ func main() {
 
 		if len(dif) > 0 {
 			notification.TriggerAlert(&dif)
+			pressToContinue()
+		} else {
+			time.Sleep(5 * time.Second)
 		}
-
-		time.Sleep(60 * time.Second)
 	}
+}
+
+func pressToContinue() {
+	fmt.Print("🔥🔥🔥🔥🔥 => Прочитал? Нажми ENTER!!! <= 🔥🔥🔥🔥🔥")
+	bufio.NewReader(os.Stdin).ReadBytes('\n')
+	fmt.Print("\n\n\n\n\n")
+	fmt.Println("Продролжаем сканирование...")
 }

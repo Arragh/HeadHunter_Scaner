@@ -1,34 +1,53 @@
 package vacancy
 
-import "HeadHunter_Scaner/model"
+import (
+	"HeadHunter_Scaner/model"
+	"fmt"
+	"strconv"
+)
 
-func MergeVacancies(newVacancies, oldVacancies []model.Vacancy) *[]model.Vacancy {
-	var result []model.Vacancy
+func MergeVacancies(oldVacanciesIds []int, newVacancies []model.Vacancy) (*[]int, error) {
+	var temp []int
 
-	seen := make(map[string]bool)
-	for _, v := range append(oldVacancies, newVacancies...) {
-		if !seen[v.Id] {
-			seen[v.Id] = true
-			result = append(result, v)
+	for _, v := range newVacancies {
+		intId, err := strconv.Atoi(v.Id)
+		if err != nil {
+			return nil, fmt.Errorf("ошибка преобразования ID в int: %v", err)
+		}
+		temp = append(temp, intId)
+	}
+
+	var result []int
+
+	seen := make(map[int]bool)
+	for _, id := range append(oldVacanciesIds, temp...) {
+		if !seen[id] {
+			seen[id] = true
+			result = append(result, id)
 		}
 	}
 
-	return &result
+	return &result, nil
 }
 
-func Difference(newVacancies, oldVacancies []model.Vacancy) []model.Vacancy {
-	inA := make(map[string]bool)
-	for _, v := range oldVacancies {
-		inA[v.Id] = true
+func Difference(newVacancies []model.Vacancy, oldVacanciesIds []int) ([]model.Vacancy, error) {
+	temp := make(map[int]bool)
+	for _, id := range oldVacanciesIds {
+		temp[id] = true
 	}
 
 	var result []model.Vacancy
 
 	for _, v := range newVacancies {
-		if !inA[v.Id] {
+		intId, err := strconv.Atoi(v.Id)
+		if err != nil {
+			return nil, fmt.Errorf("ошибка преобразования ID в int: %v", err)
+		}
+
+		if !temp[intId] {
 			result = append(result, v)
 		}
 	}
 
-	return result
+	return result, nil
 }
