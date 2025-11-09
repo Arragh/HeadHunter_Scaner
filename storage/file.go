@@ -56,7 +56,5 @@ func SaveDataToFile(data *[]model.Vacancy, filename string) error {
 		return fmt.Errorf("ошибка записи данных в файл: %v", err)
 	}
 
-	fmt.Println("Данные сохранены! 🎉")
-
 	return nil
 }
