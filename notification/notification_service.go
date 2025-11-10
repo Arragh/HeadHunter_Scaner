@@ -22,12 +22,14 @@ func TriggerAlert(vacancies *[]model.Vacancy) {
 }
 
 func playSoundAndNotify() {
-	for range 5 {
-		if runtime.GOOS == "darwin" {
-			exec.Command("osascript", "-e", `beep`).Run() // macOS
-		} else {
-			fmt.Print("\a") // Windows
+	go func() {
+		for range 5 {
+			if runtime.GOOS == "darwin" {
+				exec.Command("osascript", "-e", `beep`).Run() // macOS
+			} else {
+				fmt.Print("\a") // Windows
+			}
+			time.Sleep(time.Microsecond * 500)
 		}
-		time.Sleep(time.Microsecond * 500)
-	}
+	}()
 }
