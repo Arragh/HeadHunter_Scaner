@@ -2,6 +2,7 @@ package main
 
 import (
 	"HeadHunter_Scaner/client"
+	"HeadHunter_Scaner/config"
 	"HeadHunter_Scaner/notification"
 	"HeadHunter_Scaner/storage"
 	"HeadHunter_Scaner/vacancy"
@@ -12,6 +13,12 @@ import (
 )
 
 func main() {
+	config, err := config.LoadConfigurartion()
+	if err != nil {
+		fmt.Printf("Ошибка загрузки конфигурации: %v", err)
+		panic(err)
+	}
+
 	viewedVacancies := "viewed_vacancies.json"
 	triesCount := 1
 
@@ -25,7 +32,7 @@ func main() {
 			panic(err)
 		}
 
-		newVacancies, err := client.FetchVacancies()
+		newVacancies, err := client.FetchVacancies(config)
 		if err != nil {
 			fmt.Printf("Ошибка получения новых вакансий: %v\n", err)
 			panic(err)
@@ -53,7 +60,7 @@ func main() {
 			notification.TriggerAlert(&dif)
 			pressToContinue()
 		} else {
-			time.Sleep(5 * time.Second)
+			time.Sleep(time.Duration(config.RequestIntervalInSeconds) * time.Second)
 		}
 	}
 }

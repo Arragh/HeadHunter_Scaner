@@ -10,12 +10,7 @@ import (
 	"net/url"
 )
 
-func FetchVacancies() (*[]model.Vacancy, error) {
-	config, err := config.LoadConfigurartion()
-	if err != nil {
-		return nil, fmt.Errorf("ошибка загрузки конфигурации: %v", err)
-	}
-
+func FetchVacancies(config *config.Config) (*[]model.Vacancy, error) {
 	buildedUrl, err := buildUrl(config)
 	if err != nil {
 		return nil, fmt.Errorf("ошибка построения URL: %v", err)
@@ -34,7 +29,7 @@ func FetchVacancies() (*[]model.Vacancy, error) {
 	return &newVacancies.Items, nil
 }
 
-func buildUrl(config *model.Config) (string, error) {
+func buildUrl(config *config.Config) (string, error) {
 	parsedUrl, err := url.Parse(config.BaseUrl)
 	if err != nil {
 		return "", fmt.Errorf("ошибка парсинга URL: %v", err)
