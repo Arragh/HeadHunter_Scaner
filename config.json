@@ -1,6 +1,7 @@
 {
     "_comment": "Конфигурация поиска вакансий на HH.ru",
     "baseUrl": "https://api.hh.ru/vacancies",
+    "requestIntervalInSeconds": 10,
     "urlParameters": [
         {
             "key": "area",
