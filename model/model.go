@@ -25,3 +25,13 @@ type Salary struct {
 	Currency string  `json:"currency"`
 	Gross    bool    `json:"gross"`
 }
+
+type Config struct {
+	BaseUrl       string         `json:"baseUrl"`
+	UrlParameters []UrlParameter `json:"urlParameters"`
+}
+
+type UrlParameter struct {
+	Key   string
+	Value string
+}

@@ -1,6 +1,7 @@
 package client
 
 import (
+	"HeadHunter_Scaner/config"
 	"HeadHunter_Scaner/model"
 	"encoding/json"
 	"fmt"
@@ -9,8 +10,13 @@ import (
 	"net/url"
 )
 
-func FetchVacancies(baseUrl string) (*[]model.Vacancy, error) {
-	buildedUrl, err := buildUrl(baseUrl)
+func FetchVacancies() (*[]model.Vacancy, error) {
+	config, err := config.LoadConfigurartion()
+	if err != nil {
+		return nil, fmt.Errorf("ошибка загрузки конфигурации: %v", err)
+	}
+
+	buildedUrl, err := buildUrl(config)
 	if err != nil {
 		return nil, fmt.Errorf("ошибка построения URL: %v", err)
 	}
@@ -28,19 +34,18 @@ func FetchVacancies(baseUrl string) (*[]model.Vacancy, error) {
 	return &newVacancies.Items, nil
 }
 
-func buildUrl(baseUrl string) (string, error) {
-	parsedUrl, err := url.Parse(baseUrl)
+func buildUrl(config *model.Config) (string, error) {
+	parsedUrl, err := url.Parse(config.BaseUrl)
 	if err != nil {
 		return "", fmt.Errorf("ошибка парсинга URL: %v", err)
 	}
 
 	params := url.Values{}
-	params.Add("area", "113")
-	params.Add("period", "30")
-	params.Add("work_format", "REMOTE")
-	params.Add("search_field", "name")
-	params.Add("text", "C#")
-	params.Add("excluded_text", "QA,AQA")
+	for _, param := range config.UrlParameters {
+		if param.Value != "" {
+			params.Add(param.Key, param.Value)
+		}
+	}
 
 	parsedUrl.RawQuery = params.Encode()
 

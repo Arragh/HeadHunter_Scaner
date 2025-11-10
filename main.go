@@ -12,17 +12,20 @@ import (
 )
 
 func main() {
-	fileName := "viewed_vacancies.json"
-	baseUrl := "https://api.hh.ru/vacancies"
+	viewedVacancies := "viewed_vacancies.json"
+	triesCount := 1
 
 	for {
-		oldVacanciesIds, err := storage.ReadDataFromFile(fileName)
+		fmt.Printf("Попытка %d\n", triesCount)
+		triesCount++
+
+		oldVacanciesIds, err := storage.ReadDataFromFile(viewedVacancies)
 		if err != nil {
 			fmt.Printf("Ошибка получения старых вакансий: %v\n", err)
 			panic(err)
 		}
 
-		newVacancies, err := client.FetchVacancies(baseUrl)
+		newVacancies, err := client.FetchVacancies()
 		if err != nil {
 			fmt.Printf("Ошибка получения новых вакансий: %v\n", err)
 			panic(err)
@@ -40,7 +43,7 @@ func main() {
 			panic(err)
 		}
 
-		err = storage.SaveDataToFile(mergedVacancies, fileName)
+		err = storage.SaveDataToFile(mergedVacancies, viewedVacancies)
 		if err != nil {
 			fmt.Printf("Ошибка сохранения данных: %v\n", err)
 			panic(err)
