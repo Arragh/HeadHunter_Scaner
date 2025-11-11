@@ -3,17 +3,15 @@ package main
 import (
 	"HeadHunter_Scaner/client"
 	"HeadHunter_Scaner/config"
-	"HeadHunter_Scaner/notification"
+	"HeadHunter_Scaner/notifier"
 	"HeadHunter_Scaner/storage"
 	"HeadHunter_Scaner/vacancy"
-	"bufio"
 	"fmt"
-	"os"
 	"time"
 )
 
 func main() {
-	config, err := config.LoadConfigurartion()
+	config, err := config.GetConfigurartion()
 	if err != nil {
 		fmt.Printf("Ошибка загрузки конфигурации: %v", err)
 		panic(err)
@@ -57,17 +55,9 @@ func main() {
 		}
 
 		if len(dif) > 0 {
-			notification.TriggerAlert(&dif)
-			pressToContinue()
+			notifier.TriggerAlert(&dif)
 		} else {
-			time.Sleep(time.Duration(config.RequestIntervalInSeconds) * time.Second)
+			time.Sleep(time.Duration(5) * time.Second)
 		}
 	}
-}
-
-func pressToContinue() {
-	fmt.Print("🔥🔥🔥🔥🔥 => Прочитал? Нажми ENTER!!! <= 🔥🔥🔥🔥🔥")
-	bufio.NewReader(os.Stdin).ReadBytes('\n')
-	fmt.Print("\n\n\n\n\n")
-	fmt.Println("Продролжаем сканирование...")
 }

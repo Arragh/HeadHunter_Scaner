@@ -1,12 +1,12 @@
 package vacancy
 
 import (
-	"HeadHunter_Scaner/model"
+	"HeadHunter_Scaner/client"
 	"fmt"
 	"strconv"
 )
 
-func MergeVacancies(oldVacanciesIds []int, newVacancies []model.Vacancy) (*[]int, error) {
+func MergeVacancies(oldVacanciesIds []int, newVacancies []client.Vacancy) (*[]int, error) {
 	var temp []int
 
 	for _, v := range newVacancies {
@@ -30,13 +30,13 @@ func MergeVacancies(oldVacanciesIds []int, newVacancies []model.Vacancy) (*[]int
 	return &result, nil
 }
 
-func Difference(newVacancies []model.Vacancy, oldVacanciesIds []int) ([]model.Vacancy, error) {
+func Difference(newVacancies []client.Vacancy, oldVacanciesIds []int) ([]client.Vacancy, error) {
 	temp := make(map[int]bool)
 	for _, id := range oldVacanciesIds {
 		temp[id] = true
 	}
 
-	var result []model.Vacancy
+	var result []client.Vacancy
 
 	for _, v := range newVacancies {
 		intId, err := strconv.Atoi(v.Id)

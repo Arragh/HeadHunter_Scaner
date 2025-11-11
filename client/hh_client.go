@@ -2,26 +2,18 @@ package client
 
 import (
 	"HeadHunter_Scaner/config"
-	"HeadHunter_Scaner/model"
+	"HeadHunter_Scaner/handler"
 	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
-	"net/url"
 )
 
-func FetchVacancies(config *config.Config) (*[]model.Vacancy, error) {
-	buildedUrl, err := buildUrl(config)
-	if err != nil {
-		return nil, fmt.Errorf("ошибка построения URL: %v", err)
-	}
-
-	body, err := getHttpResponseBody(buildedUrl)
+func FetchVacancies(config *config.Config) (*[]Vacancy, error) {
+	body, err := handler.Get(config.BaseUrl, &config.UrlParameters)
 	if err != nil {
 		return nil, fmt.Errorf("ошибка получения тела ответа: %v", err)
 	}
 
-	newVacancies, err := deserializeHttpResponseBody(body)
+	newVacancies, err := deserializevacanciesFromBody(body)
 	if err != nil {
 		return nil, fmt.Errorf("ошибка демаршалинга: %v", err)
 	}
@@ -29,45 +21,8 @@ func FetchVacancies(config *config.Config) (*[]model.Vacancy, error) {
 	return &newVacancies.Items, nil
 }
 
-func buildUrl(config *config.Config) (string, error) {
-	parsedUrl, err := url.Parse(config.BaseUrl)
-	if err != nil {
-		return "", fmt.Errorf("ошибка парсинга URL: %v", err)
-	}
-
-	params := url.Values{}
-	for _, param := range config.UrlParameters {
-		if param.Value != "" {
-			params.Add(param.Key, param.Value)
-		}
-	}
-
-	parsedUrl.RawQuery = params.Encode()
-
-	return parsedUrl.String(), nil
-}
-
-func getHttpResponseBody(url string) ([]byte, error) {
-	resp, err := http.Get(url)
-	if err != nil {
-		return nil, fmt.Errorf("ошибка запроса: %v", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("ошибка статуса ответа: %v", resp.Status)
-	}
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("ошибка чтения тела ответа: %v", err)
-	}
-
-	return body, nil
-}
-
-func deserializeHttpResponseBody(body []byte) (*model.VacancyResponse, error) {
-	var unpacked model.VacancyResponse
+func deserializevacanciesFromBody(body []byte) (*VacancyResponse, error) {
+	var unpacked VacancyResponse
 
 	err := json.Unmarshal(body, &unpacked)
 	if err != nil {
@@ -75,4 +30,30 @@ func deserializeHttpResponseBody(body []byte) (*model.VacancyResponse, error) {
 	}
 
 	return &unpacked, nil
+}
+
+type VacancyResponse struct {
+	Items []Vacancy `json:"items"`
+}
+
+type Vacancy struct {
+	Id                     string     `json:"id"`
+	Name                   string     `json:"name"`
+	HasTest                bool       `json:"has_test"`
+	ResponseLetterRequired bool       `json:"response_letter_required"`
+	Url                    string     `json:"alternate_url"`
+	Department             Department `json:"department"`
+	Salary                 Salary     `json:"salary"`
+}
+
+type Department struct {
+	Id   string `json:"id"`
+	Name string `json:"name"`
+}
+
+type Salary struct {
+	From     float64 `json:"from"`
+	To       float64 `json:"to"`
+	Currency string  `json:"currency"`
+	Gross    bool    `json:"gross"`
 }

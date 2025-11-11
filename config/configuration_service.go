@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-func LoadConfigurartion() (*Config, error) {
+func GetConfigurartion() (*Config, error) {
 	file, err := os.Open("config.json")
 	if err != nil {
 		return nil, fmt.Errorf("ошибка открытия файла: %v", err)
@@ -31,10 +31,17 @@ func LoadConfigurartion() (*Config, error) {
 type Config struct {
 	BaseUrl                  string         `json:"baseUrl"`
 	RequestIntervalInSeconds int            `json:"requestIntervalInSeconds"`
+	Telegram                 Telegram       `json:"telegram"`
 	UrlParameters            []UrlParameter `json:"urlParameters"`
 }
 
 type UrlParameter struct {
 	Key   string `json:"key"`
 	Value string `json:"value"`
+}
+
+type Telegram struct {
+	BaseUrl  string `json:"baseUrl"`
+	BotToken string `json:"botToken"`
+	ChatId   string `json:"chatId"`
 }
