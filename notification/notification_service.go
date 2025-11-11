@@ -1,7 +1,7 @@
 package notification
 
 import (
-	"HeadHunter_Scaner/model"
+	"HeadHunter_Scaner/client"
 	"fmt"
 	"os/exec"
 	"runtime"
@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func TriggerAlert(vacancies *[]model.Vacancy) {
+func TriggerAlert(vacancies *[]client.Vacancy) {
 	fmt.Println("\n" + strings.Repeat("=", 50))
 	fmt.Println("🔥 НАЙДЕНЫ НОВЫЕ ВАКАНСИИ! 🔥")
 	for i := range *vacancies {

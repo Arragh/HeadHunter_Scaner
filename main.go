@@ -13,7 +13,7 @@ import (
 )
 
 func main() {
-	config, err := config.LoadConfigurartion()
+	config, err := config.GetConfigurartion()
 	if err != nil {
 		fmt.Printf("Ошибка загрузки конфигурации: %v", err)
 		panic(err)

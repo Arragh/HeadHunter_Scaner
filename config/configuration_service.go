@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-func LoadConfigurartion() (*Config, error) {
+func GetConfigurartion() (*Config, error) {
 	file, err := os.Open("config.json")
 	if err != nil {
 		return nil, fmt.Errorf("ошибка открытия файла: %v", err)

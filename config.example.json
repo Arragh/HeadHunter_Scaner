@@ -1,0 +1,41 @@
+{
+    "_comment": "Конфигурация поиска вакансий на HH.ru",
+    "baseUrl": "https://api.hh.ru/vacancies",
+    "requestIntervalInSeconds": 10,
+    "telegram": {
+        "botToken": "",
+        "chatId": ""
+    },
+    "urlParameters": [
+        {
+            "key": "area",
+            "value": "113",
+            "description": "113 = Россия (по справочнику HH)"
+        },
+        {
+            "key": "period",
+            "value": "1",
+            "description": "За какое количество дней"
+        },
+        {
+            "key": "work_format",
+            "value": "REMOTE",
+            "description": "Удалёнка"
+        },
+        {
+            "key": "search_field",
+            "value": "name",
+            "description": "Искать по ключевым словам в названии вакансии"
+        },
+        {
+            "key": "text",
+            "value": "C#",
+            "description": "Ключевое слово для поиска"
+        },
+        {
+            "key": "excluded_text",
+            "value": "QA,AQA",
+            "description": "Исключить вакансии с QA и AQA в тексте"
+        }
+    ]
+}
