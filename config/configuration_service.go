@@ -31,10 +31,17 @@ func GetConfigurartion() (*Config, error) {
 type Config struct {
 	BaseUrl                  string         `json:"baseUrl"`
 	RequestIntervalInSeconds int            `json:"requestIntervalInSeconds"`
+	Telegram                 Telegram       `json:"telegram"`
 	UrlParameters            []UrlParameter `json:"urlParameters"`
 }
 
 type UrlParameter struct {
 	Key   string `json:"key"`
 	Value string `json:"value"`
+}
+
+type Telegram struct {
+	BaseUrl  string `json:"baseUrl"`
+	BotToken string `json:"botToken"`
+	ChatId   string `json:"chatId"`
 }
