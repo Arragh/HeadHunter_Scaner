@@ -21,12 +21,12 @@ func Get(baseUrl string, params *[]config.UrlParameter) ([]byte, error) {
 
 	resp, err := http.Get(buildedUrl)
 	if err != nil {
-		return nil, fmt.Errorf("ошибка запроса: %v", err)
+		fmt.Println("Не удалось получить ответ от удаленного сервера:", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("ошибка статуса ответа: %v", resp.Status)
+		fmt.Println("Удаленный сервер ответил с ошибкой:", resp.StatusCode)
 	}
 
 	body, err := io.ReadAll(resp.Body)

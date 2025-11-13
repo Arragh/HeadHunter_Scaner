@@ -5,8 +5,6 @@ import (
 	"HeadHunter_Scaner/config"
 	"HeadHunter_Scaner/handler"
 	"fmt"
-	"os/exec"
-	"runtime"
 	"strings"
 	"time"
 )
@@ -16,25 +14,10 @@ func TriggerAlert(vacancies *[]client.Vacancy) {
 	fmt.Printf("🔥 НАЙДЕНО %d НОВЫХ ВАКАНСИЙ! 🔥\n", len(*vacancies))
 	for i := range *vacancies {
 		fmt.Println((*vacancies)[i].Url)
-
-		go func(text string) {
-			sendNotificationToTelegram(text)
-		}((*vacancies)[i].Url)
-
-		go func() {
-			playSoundNotify()
-		}()
+		sendNotificationToTelegram((*vacancies)[i].Url)
 	}
 	fmt.Println(time.Now().Format("15:04:05"))
 	fmt.Println(strings.Repeat("=", 50))
-}
-
-func playSoundNotify() {
-	if runtime.GOOS == "darwin" {
-		exec.Command("osascript", "-e", `beep`).Run() // macOS
-	} else {
-		fmt.Print("\a") // Windows
-	}
 }
 
 func sendNotificationToTelegram(text string) error {
@@ -58,7 +41,7 @@ func sendNotificationToTelegram(text string) error {
 
 	_, err = handler.Get(buildedUrl, &params)
 	if err != nil {
-		return fmt.Errorf("ошибка отправки уведомления: %v", err)
+		fmt.Println("Ошибка отправки уведомления в Telegram:", err)
 	}
 
 	return nil
