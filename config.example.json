@@ -3,10 +3,10 @@
     "requestIntervalInSeconds": 10,
     "headHunter": {
         "baseUrl": "https://hh.ru",
-        "ApiUrl": "https://api.hh.ru"
+        "apiUrl": "https://api.hh.ru"
     },
     "telegram": {
-        "ApiUrl": "https://api.telegram.org/bot",
+        "apiUrl": "https://api.telegram.org/bot",
         "botToken": "",
         "chatId": ""
     },

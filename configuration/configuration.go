@@ -39,11 +39,11 @@ type Config struct {
 
 type HeadHunter struct {
 	BaseUrl string `json:"baseUrl"`
-	ApiUrl  string `json:"apiBaseUrl"`
+	ApiUrl  string `json:"apiUrl"`
 }
 
 type Telegram struct {
-	ApiUrl   string `json:"baseUrl"`
+	ApiUrl   string `json:"apiUrl"`
 	BotToken string `json:"botToken"`
 	ChatId   string `json:"chatId"`
 }
