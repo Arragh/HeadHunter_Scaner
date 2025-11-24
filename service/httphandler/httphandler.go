@@ -1,14 +1,16 @@
-package handler
+// Package httphandler реализует функции для работы с HTTP-запросами
+package httphandler
 
 import (
-	"HeadHunter_Scaner/config"
 	"fmt"
+	"hhscaner/configuration"
 	"io"
 	"net/http"
 	"net/url"
 )
 
-func Get(baseUrl string, params *[]config.UrlParameter) ([]byte, error) {
+// Get отправляет GET-запрос на указанный URL и возвращает тело ответа
+func Get(baseUrl string, params *[]configuration.UrlParameter) ([]byte, error) {
 	buildedUrl := baseUrl
 	if params != nil {
 		tempUrl, err := buildUrl(baseUrl, params)
@@ -37,7 +39,8 @@ func Get(baseUrl string, params *[]config.UrlParameter) ([]byte, error) {
 	return body, nil
 }
 
-func buildUrl(urlString string, params *[]config.UrlParameter) (string, error) {
+// buildUrl собирает URL с учетом переданных параметров
+func buildUrl(urlString string, params *[]configuration.UrlParameter) (string, error) {
 	parsedUrl, err := url.Parse(urlString)
 	if err != nil {
 		return "", fmt.Errorf("ошибка парсинга URL: %v", err)

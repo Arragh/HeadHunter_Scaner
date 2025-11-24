@@ -1,61 +1,57 @@
 package main
 
 import (
-	"HeadHunter_Scaner/client"
-	"HeadHunter_Scaner/config"
-	"HeadHunter_Scaner/notifier"
-	"HeadHunter_Scaner/storage"
-	"HeadHunter_Scaner/vacancy"
 	"fmt"
+	"hhscaner/configuration"
+	"hhscaner/service/headhunter"
+	"hhscaner/service/notifier"
+	"hhscaner/service/storage"
+	"log"
 	"time"
 )
 
+var fileName string = "viewed_vacancies.txt"
+var triesCount int = 1
+
 func main() {
-	config, err := config.GetConfigurartion()
+	config, err := configuration.GetConfigurartion()
 	if err != nil {
 		fmt.Printf("Ошибка загрузки конфигурации: %v", err)
 		panic(err)
 	}
 
-	viewedVacancies := "viewed_vacancies.json"
-	triesCount := 1
-
 	for {
 		fmt.Printf("Попытка %d\n", triesCount)
 		triesCount++
 
-		oldVacanciesIds, err := storage.ReadDataFromFile(viewedVacancies)
+		oldVacanciesIds, err := storage.ReadData(fileName)
 		if err != nil {
-			fmt.Printf("Ошибка получения старых вакансий: %v\n", err)
-			panic(err)
+			log.Fatal(err)
 		}
 
-		newVacancies, err := client.FetchVacancies(config)
+		vacanciesIds, err := headhunter.GetVacanciesIds(config)
 		if err != nil {
-			fmt.Printf("Ошибка получения новых вакансий: %v\n", err)
-			panic(err)
+			log.Fatal(err) // TODO: изменить на просто логирование
 		}
 
-		dif, err := vacancy.Difference(*newVacancies, *oldVacanciesIds)
+		dif, err := headhunter.Difference(vacanciesIds, oldVacanciesIds)
 		if err != nil {
-			fmt.Printf("Ошибка вычисления новых вакансий: %v\n", err)
-			panic(err)
+			log.Fatal(err)
 		}
 
-		mergedVacancies, err := vacancy.MergeVacancies(*oldVacanciesIds, *newVacancies)
+		err = storage.SaveData(dif, fileName)
 		if err != nil {
-			fmt.Printf("Ошибка объединения вакансий: %v\n", err)
-			panic(err)
-		}
-
-		err = storage.SaveDataToFile(mergedVacancies, viewedVacancies)
-		if err != nil {
-			fmt.Printf("Ошибка сохранения данных: %v\n", err)
-			panic(err)
+			log.Fatal(err)
 		}
 
 		if len(dif) > 0 {
-			notifier.TriggerAlert(&dif)
+			notifier.TriggerAlert(dif)
+
+			for _, id := range dif {
+				vacancyUrl := fmt.Sprintf("%s/vacancy/%d", config.HeadHunter.BaseUrl, id)
+				fmt.Println(vacancyUrl)
+				notifier.SendNotificationToTelegram(vacancyUrl)
+			}
 		} else {
 			time.Sleep(time.Duration(config.RequestIntervalInSeconds) * time.Second)
 		}

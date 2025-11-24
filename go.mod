@@ -1,3 +1,3 @@
-module HeadHunter_Scaner
+module hhscaner
 
 go 1.25.1

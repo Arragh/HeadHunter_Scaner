@@ -1,4 +1,5 @@
-package config
+// Package configuration содержит структуры и методы для хранения и получения конфигурации
+package configuration
 
 import (
 	"encoding/json"
@@ -7,6 +8,7 @@ import (
 	"os"
 )
 
+// GetConfigurartion загружает конфигурацию из файла
 func GetConfigurartion() (*Config, error) {
 	file, err := os.Open("config.json")
 	if err != nil {
@@ -29,19 +31,24 @@ func GetConfigurartion() (*Config, error) {
 }
 
 type Config struct {
-	BaseUrl                  string         `json:"baseUrl"`
 	RequestIntervalInSeconds int            `json:"requestIntervalInSeconds"`
+	HeadHunter               HeadHunter     `json:"headHunter"`
 	Telegram                 Telegram       `json:"telegram"`
 	UrlParameters            []UrlParameter `json:"urlParameters"`
+}
+
+type HeadHunter struct {
+	BaseUrl string `json:"baseUrl"`
+	ApiUrl  string `json:"apiBaseUrl"`
+}
+
+type Telegram struct {
+	ApiUrl   string `json:"baseUrl"`
+	BotToken string `json:"botToken"`
+	ChatId   string `json:"chatId"`
 }
 
 type UrlParameter struct {
 	Key   string `json:"key"`
 	Value string `json:"value"`
-}
-
-type Telegram struct {
-	BaseUrl  string `json:"baseUrl"`
-	BotToken string `json:"botToken"`
-	ChatId   string `json:"chatId"`
 }
