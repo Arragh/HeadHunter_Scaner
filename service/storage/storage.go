@@ -9,16 +9,21 @@ import (
 	"strings"
 )
 
-// ReadData читает данные из файла и возвращает их в виде среза int64
-func ReadData(fileName string) ([]int64, error) {
+// CheckFileExists проверяет, существует ли файл, и если нет, то создает его
+func CheckFileExists(fileName string) error {
 	_, err := os.Stat(fileName)
 	if err != nil && os.IsNotExist(err) {
 		err = os.WriteFile(fileName, []byte(""), 0644)
 		if err != nil {
-			return nil, fmt.Errorf("ошибка создания файла %s: %v", fileName, err)
+			return fmt.Errorf("ошибка создания файла %s: %v", fileName, err)
 		}
 	}
 
+	return nil
+}
+
+// ReadData читает данные из файла и возвращает их в виде среза int64
+func ReadData(fileName string) ([]int64, error) {
 	file, err := os.Open(fileName)
 	if err != nil {
 		return nil, err

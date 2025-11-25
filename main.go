@@ -17,7 +17,12 @@ func main() {
 	config, err := configuration.GetConfigurartion()
 	if err != nil {
 		fmt.Printf("Ошибка загрузки конфигурации: %v", err)
-		panic(err)
+		log.Fatal(err)
+	}
+
+	err = storage.CheckFileExists(fileName)
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	for {
