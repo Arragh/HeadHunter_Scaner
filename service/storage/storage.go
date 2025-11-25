@@ -57,14 +57,15 @@ func ReadData(fileName string) ([]int64, error) {
 
 // SaveData сохраняет данные в файл
 func SaveData(data []int64, filename string) error {
-	file, err := os.OpenFile(filename, os.O_APPEND|os.O_WRONLY, 0644)
+	options := os.O_APPEND | os.O_WRONLY
+	file, err := os.OpenFile(filename, options, 0644)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
 
 	for _, value := range data {
-		_, err := file.WriteString(strconv.FormatInt(value, 10) + "\n")
+		_, err := fmt.Fprintln(file, value)
 		if err != nil {
 			return err
 		}
