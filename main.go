@@ -50,7 +50,7 @@ func main() {
 			for _, id := range dif {
 				vacancyUrl := fmt.Sprintf("%s/vacancy/%d", config.HeadHunter.BaseUrl, id)
 				fmt.Println(vacancyUrl)
-				// notifier.SendNotificationToTelegram(vacancyUrl)
+				notifier.SendNotificationToTelegram(vacancyUrl)
 			}
 		} else {
 			time.Sleep(time.Duration(config.RequestIntervalInSeconds) * time.Second)
