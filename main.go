@@ -20,11 +20,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	err = storage.CheckFileExists(fileName)
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	for {
 		fmt.Printf("Попытка %d\n", triesCount)
 		triesCount++

@@ -9,22 +9,10 @@ import (
 	"strings"
 )
 
-// CheckFileExists проверяет, существует ли файл, и если нет, то создает его
-func CheckFileExists(fileName string) error {
-	_, err := os.Stat(fileName)
-	if err != nil && os.IsNotExist(err) {
-		err = os.WriteFile(fileName, []byte(""), 0644)
-		if err != nil {
-			return fmt.Errorf("ошибка создания файла %s: %v", fileName, err)
-		}
-	}
-
-	return nil
-}
-
 // ReadData читает данные из файла и возвращает их в виде среза int64
 func ReadData(fileName string) ([]int64, error) {
-	file, err := os.Open(fileName)
+	options := os.O_RDONLY | os.O_CREATE
+	file, err := os.OpenFile(fileName, options, 0600)
 	if err != nil {
 		return nil, err
 	}
@@ -57,14 +45,15 @@ func ReadData(fileName string) ([]int64, error) {
 
 // SaveData сохраняет данные в файл
 func SaveData(data []int64, filename string) error {
-	file, err := os.OpenFile(filename, os.O_APPEND|os.O_WRONLY, 0644)
+	options := os.O_APPEND | os.O_WRONLY
+	file, err := os.OpenFile(filename, options, 0600)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
 
 	for _, value := range data {
-		_, err := file.WriteString(strconv.FormatInt(value, 10) + "\n")
+		_, err := fmt.Fprintln(file, value)
 		if err != nil {
 			return err
 		}
