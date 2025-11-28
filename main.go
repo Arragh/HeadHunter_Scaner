@@ -37,7 +37,7 @@ func main() {
 			log.Fatal(err) // TODO: изменить на просто логирование
 		}
 
-		dif, err := headhunter.Difference(vacanciesIds, oldVacanciesIds)
+		dif := headhunter.Difference(vacanciesIds, oldVacanciesIds)
 		if err != nil {
 			log.Fatal(err)
 		}
