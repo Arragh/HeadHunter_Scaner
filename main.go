@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"hhscaner/configuration"
 	"hhscaner/service/headhunter"
+	"hhscaner/service/httphandler"
 	"hhscaner/service/notifier"
 	"hhscaner/service/storage"
 	"log"
@@ -20,6 +21,8 @@ func main() {
 		log.Fatal(err)
 	}
 
+	httpClient := &httphandler.DefaultHttpClient{}
+
 	for {
 		fmt.Printf("Попытка %d\n", triesCount)
 		triesCount++
@@ -29,7 +32,7 @@ func main() {
 			log.Fatal(err)
 		}
 
-		vacanciesIds, err := headhunter.GetVacanciesIds(config)
+		vacanciesIds, err := headhunter.GetVacanciesIds(config, httpClient)
 		if err != nil {
 			log.Fatal(err) // TODO: изменить на просто логирование
 		}
@@ -50,7 +53,7 @@ func main() {
 			for _, id := range dif {
 				vacancyUrl := fmt.Sprintf("%s/vacancy/%d", config.HeadHunter.BaseUrl, id)
 				fmt.Println(vacancyUrl)
-				notifier.SendNotificationToTelegram(vacancyUrl)
+				notifier.SendNotificationToTelegram(vacancyUrl, httpClient)
 			}
 		} else {
 			time.Sleep(time.Duration(config.RequestIntervalInSeconds) * time.Second)

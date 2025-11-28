@@ -18,7 +18,7 @@ func TriggerAlert(vacanciesIds []int64) {
 }
 
 // SendNotificationToTelegram отправляет уведомление в Telegram
-func SendNotificationToTelegram(text string) error {
+func SendNotificationToTelegram(text string, client httphandler.HttpClient) error {
 	tempConfig, err := configuration.GetConfigurartion()
 	if err != nil {
 		return fmt.Errorf("ошибка получения конфигурации: %v", err)
@@ -37,7 +37,7 @@ func SendNotificationToTelegram(text string) error {
 
 	buildedUrl := tempConfig.Telegram.ApiUrl + tempConfig.Telegram.BotToken + "/sendMessage"
 
-	_, err = httphandler.Get(buildedUrl, &params)
+	_, err = client.Get(buildedUrl, &params)
 	if err != nil {
 		fmt.Println("Ошибка отправки уведомления в Telegram:", err)
 	}

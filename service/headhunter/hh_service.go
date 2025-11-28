@@ -2,7 +2,6 @@
 package headhunter
 
 import (
-	"encoding/json"
 	"fmt"
 	"hhscaner/configuration"
 	"hhscaner/service/httphandler"
@@ -28,8 +27,8 @@ func Difference(newVacanciesIds []int64, oldVacanciesIds []int64) ([]int64, erro
 }
 
 // GetVacanciesIds обращается к api hh.ru и возвращает список ID вакансий
-func GetVacanciesIds(config *configuration.Config) ([]int64, error) {
-	body, err := httphandler.Get(config.HeadHunter.ApiUrl+"/vacancies", &config.UrlParameters)
+func GetVacanciesIds(config *configuration.Config, client httphandler.HttpClient) ([]int64, error) {
+	body, err := client.Get(config.HeadHunter.ApiUrl+"/vacancies", &config.UrlParameters)
 	if err != nil {
 		return nil, fmt.Errorf("ошибка получения тела ответа: %v", err)
 	}
@@ -51,42 +50,4 @@ func GetVacanciesIds(config *configuration.Config) ([]int64, error) {
 	}
 
 	return newVacanciesIds, nil
-}
-
-// deserializeBody делает демаршалинг тела ответа
-func deserializeBody(body []byte) (*VacancyResponse, error) {
-	var unpacked VacancyResponse
-
-	err := json.Unmarshal(body, &unpacked)
-	if err != nil {
-		return nil, fmt.Errorf("ошибка демаршалинга: %v", err)
-	}
-
-	return &unpacked, nil
-}
-
-type VacancyResponse struct {
-	Items []Vacancy `json:"items"`
-}
-
-type Vacancy struct {
-	Id                     string     `json:"id"`
-	Name                   string     `json:"name"`
-	HasTest                bool       `json:"has_test"`
-	ResponseLetterRequired bool       `json:"response_letter_required"`
-	Url                    string     `json:"alternate_url"`
-	Department             Department `json:"department"`
-	Salary                 Salary     `json:"salary"`
-}
-
-type Department struct {
-	Id   string `json:"id"`
-	Name string `json:"name"`
-}
-
-type Salary struct {
-	From     float64 `json:"from"`
-	To       float64 `json:"to"`
-	Currency string  `json:"currency"`
-	Gross    bool    `json:"gross"`
 }
