@@ -9,7 +9,7 @@ import (
 )
 
 // Difference сравнивает полученные вакансии с сохраненными и возвращает разницу
-func Difference(newVacanciesIds []int64, oldVacanciesIds []int64) ([]int64, error) {
+func Difference(newVacanciesIds []int64, oldVacanciesIds []int64) []int64 {
 	temp := make(map[int64]bool)
 
 	for _, id := range oldVacanciesIds {
@@ -23,7 +23,7 @@ func Difference(newVacanciesIds []int64, oldVacanciesIds []int64) ([]int64, erro
 		}
 	}
 
-	return result, nil
+	return result
 }
 
 // GetVacanciesIds обращается к api hh.ru и возвращает список ID вакансий
