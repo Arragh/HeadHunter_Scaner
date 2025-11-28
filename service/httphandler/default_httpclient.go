@@ -1,4 +1,3 @@
-// Package httphandler реализует функции для работы с HTTP-запросами
 package httphandler
 
 import (
@@ -9,8 +8,10 @@ import (
 	"net/url"
 )
 
+type DefaultHttpClient struct{}
+
 // Get отправляет GET-запрос на указанный URL и возвращает тело ответа
-func Get(baseUrl string, params *[]configuration.UrlParameter) ([]byte, error) {
+func (c *DefaultHttpClient) Get(baseUrl string, params *[]configuration.UrlParameter) ([]byte, error) {
 	buildedUrl := baseUrl
 	if params != nil {
 		tempUrl, err := buildUrl(baseUrl, params)
