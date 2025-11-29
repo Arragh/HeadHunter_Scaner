@@ -6,6 +6,7 @@ import (
 	"hhscaner/service/headhunter"
 	"hhscaner/service/httphandler"
 	"hhscaner/service/notifier"
+	"hhscaner/service/serializer"
 	"hhscaner/service/storage"
 	"log"
 	"time"
@@ -32,7 +33,7 @@ func main() {
 			log.Fatal(err)
 		}
 
-		vacanciesIds, err := headhunter.GetVacanciesIds(config, httpClient)
+		vacanciesIds, err := getVacanciesIds(config, httpClient)
 		if err != nil {
 			log.Fatal(err) // TODO: изменить на просто логирование
 		}
@@ -59,4 +60,23 @@ func main() {
 			time.Sleep(time.Duration(config.RequestIntervalInSeconds) * time.Second)
 		}
 	}
+}
+
+func getVacanciesIds(config *configuration.Config, client httphandler.HttpClient) ([]int64, error) {
+	body, err := client.Get(config.HeadHunter.ApiUrl+"/vacancies", &config.UrlParameters)
+	if err != nil {
+		return nil, fmt.Errorf("ошибка получения тела ответа: %v", err)
+	}
+
+	vacancies, err := serializer.Deserialize[headhunter.VacancyResponse](body)
+	if err != nil {
+		return nil, fmt.Errorf("ошибка демаршалинга: %v", err)
+	}
+
+	vacanciesIds, err := headhunter.ParseVacanciesIds(vacancies.Items)
+	if err != nil {
+		return nil, fmt.Errorf("ошибка парсинга вакансий: %v", err)
+	}
+
+	return vacanciesIds, nil
 }
