@@ -11,18 +11,8 @@ import (
 type DefaultHttpClient struct{}
 
 // Get отправляет GET-запрос на указанный URL и возвращает тело ответа
-func (c *DefaultHttpClient) Get(baseUrl string, params *[]configuration.UrlParameter) ([]byte, error) {
-	buildedUrl := baseUrl
-	if params != nil {
-		tempUrl, err := buildUrl(baseUrl, params)
-		if err != nil {
-			return nil, fmt.Errorf("ошибка построения URL: %v", err)
-		}
-
-		buildedUrl = tempUrl
-	}
-
-	resp, err := http.Get(buildedUrl)
+func (c *DefaultHttpClient) Get(urlString string) ([]byte, error) {
+	resp, err := http.Get(urlString)
 	if err != nil {
 		fmt.Println("Не удалось получить ответ от удаленного сервера:", err)
 	}
@@ -40,8 +30,8 @@ func (c *DefaultHttpClient) Get(baseUrl string, params *[]configuration.UrlParam
 	return body, nil
 }
 
-// buildUrl собирает URL с учетом переданных параметров
-func buildUrl(urlString string, params *[]configuration.UrlParameter) (string, error) {
+// BuildUrl собирает URL с учетом переданных параметров
+func BuildUrl(urlString string, params *[]configuration.UrlParameter) (string, error) {
 	parsedUrl, err := url.Parse(urlString)
 	if err != nil {
 		return "", fmt.Errorf("ошибка парсинга URL: %v", err)

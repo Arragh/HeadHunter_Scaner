@@ -6,6 +6,7 @@ import (
 	"hhscaner/service/headhunter"
 	"hhscaner/service/httphandler"
 	"hhscaner/service/notifier"
+	"hhscaner/service/serializer"
 	"hhscaner/service/storage"
 	"log"
 	"time"
@@ -32,7 +33,7 @@ func main() {
 			log.Fatal(err)
 		}
 
-		vacanciesIds, err := headhunter.GetVacanciesIds(config, httpClient)
+		vacanciesIds, err := getVacanciesIds(config, httpClient)
 		if err != nil {
 			log.Fatal(err) // TODO: изменить на просто логирование
 		}
@@ -53,10 +54,62 @@ func main() {
 			for _, id := range dif {
 				vacancyUrl := fmt.Sprintf("%s/vacancy/%d", config.HeadHunter.BaseUrl, id)
 				fmt.Println(vacancyUrl)
-				notifier.SendNotificationToTelegram(vacancyUrl, httpClient)
+				sendNotificationToTelegram(config, httpClient, vacancyUrl)
 			}
 		} else {
 			time.Sleep(time.Duration(config.RequestIntervalInSeconds) * time.Second)
 		}
 	}
+}
+
+func getVacanciesIds(config *configuration.Config, client httphandler.HttpClient) ([]int64, error) {
+	baseUrl := config.HeadHunter.ApiUrl + "/vacancies"
+	builderUrl, err := httphandler.BuildUrl(baseUrl, &config.UrlParameters)
+	if err != nil {
+		return nil, fmt.Errorf("ошибка построения URL: %v", err)
+	}
+
+	body, err := client.Get(builderUrl)
+	if err != nil {
+		return nil, fmt.Errorf("ошибка получения тела ответа: %v", err)
+	}
+
+	vacancies, err := serializer.Deserialize[headhunter.VacancyResponse](body)
+	if err != nil {
+		return nil, fmt.Errorf("ошибка демаршалинга: %v", err)
+	}
+
+	vacanciesIds, err := headhunter.ParseVacanciesIds(vacancies.Items)
+	if err != nil {
+		return nil, fmt.Errorf("ошибка парсинга вакансий: %v", err)
+	}
+
+	return vacanciesIds, nil
+}
+
+func sendNotificationToTelegram(config *configuration.Config, client httphandler.HttpClient, vacancyUrl string) error {
+	params := []configuration.UrlParameter{
+		{
+			Key:   "chat_id",
+			Value: config.Telegram.ChatId,
+		},
+		{
+			Key:   "text",
+			Value: vacancyUrl,
+		},
+	}
+
+	baseUrl := config.Telegram.ApiUrl + "/bot" + config.Telegram.BotToken + "/sendMessage"
+
+	buildedUrl, err := httphandler.BuildUrl(baseUrl, &params)
+	if err != nil {
+		return fmt.Errorf("ошибка построения URL: %v", err)
+	}
+
+	err = notifier.SendNotificationToTelegram(client, buildedUrl, vacancyUrl)
+	if err != nil {
+		return fmt.Errorf("ошибка отправки уведомления: %v", err)
+	}
+
+	return nil
 }

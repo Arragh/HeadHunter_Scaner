@@ -3,8 +3,6 @@ package headhunter
 
 import (
 	"fmt"
-	"hhscaner/configuration"
-	"hhscaner/service/httphandler"
 	"strconv"
 )
 
@@ -27,20 +25,10 @@ func Difference(newVacanciesIds []int64, oldVacanciesIds []int64) []int64 {
 }
 
 // GetVacanciesIds обращается к api hh.ru и возвращает список ID вакансий
-func GetVacanciesIds(config *configuration.Config, client httphandler.HttpClient) ([]int64, error) {
-	body, err := client.Get(config.HeadHunter.ApiUrl+"/vacancies", &config.UrlParameters)
-	if err != nil {
-		return nil, fmt.Errorf("ошибка получения тела ответа: %v", err)
-	}
-
-	vacancies, err := deserializeBody(body)
-	if err != nil {
-		return nil, fmt.Errorf("ошибка демаршалинга: %v", err)
-	}
-
+func ParseVacanciesIds(vacancies []Vacancy) ([]int64, error) {
 	var newVacanciesIds []int64
 
-	for _, v := range vacancies.Items {
+	for _, v := range vacancies {
 		intId, err := strconv.Atoi(v.Id)
 		if err != nil {
 			return nil, fmt.Errorf("ошибка преобразования ID в int: %v", err)

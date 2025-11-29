@@ -1,14 +1,8 @@
 package headhunter
 
 import (
-	"encoding/json"
-	"hhscaner/configuration"
-	"hhscaner/test/mock"
 	"reflect"
-	"strconv"
 	"testing"
-
-	"github.com/golang/mock/gomock"
 )
 
 func TestDifference(t *testing.T) {
@@ -23,44 +17,20 @@ func TestDifference(t *testing.T) {
 	}
 }
 
-func TestGetVacanciesIds(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	mockHttpClient := mock.NewMockHttpClient(ctrl)
-
-	want := []int64{1, 2}
-	vacancyResponse := VacancyResponse{}
-	for _, v := range want {
-		vacancyResponse.Items = append(vacancyResponse.Items, Vacancy{
-			Id: strconv.Itoa(int(v)),
-		})
+func TestParseVacanciesIds(t *testing.T) {
+	vacancies := []Vacancy{
+		{Id: "123"},
+		{Id: "456"},
+		{Id: "789"},
 	}
 
-	body, _ := json.Marshal(vacancyResponse)
-	mockHttpClient.
-		EXPECT().
-		Get(gomock.Any(), gomock.Any()).
-		Return(body, nil)
-
-	config := configuration.Config{
-		RequestIntervalInSeconds: 1,
-		HeadHunter: configuration.HeadHunter{
-			ApiUrl: "https://mock.mock",
-		},
-		UrlParameters: []configuration.UrlParameter{
-			{
-				Key:   "text",
-				Value: "golang",
-			},
-		},
-	}
-
-	got, err := GetVacanciesIds(&config, mockHttpClient)
+	got, err := ParseVacanciesIds(vacancies)
 	if err != nil {
-		t.Errorf("ошибка при вызове метода GetVacanciesIds(): %s", err)
+		t.Errorf("ошибка при парсинге вакансий: %v", err)
 	}
-	if !reflect.DeepEqual(want, got) {
-		t.Errorf("GetVacanciesIds() = \"%v\", want %v", got, want)
+
+	want := []int64{123, 456, 789}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("got: %v, want: %v", got, want)
 	}
 }

@@ -3,7 +3,6 @@ package notifier
 
 import (
 	"fmt"
-	"hhscaner/configuration"
 	"hhscaner/service/httphandler"
 	"strings"
 	"time"
@@ -18,28 +17,14 @@ func TriggerAlert(vacanciesIds []int64) {
 }
 
 // SendNotificationToTelegram отправляет уведомление в Telegram
-func SendNotificationToTelegram(text string, client httphandler.HttpClient) error {
-	tempConfig, err := configuration.GetConfigurartion()
+func SendNotificationToTelegram(
+	client httphandler.HttpClient,
+	urlString string,
+	text string) error {
+
+	_, err := client.Get(urlString)
 	if err != nil {
-		return fmt.Errorf("ошибка получения конфигурации: %v", err)
-	}
-
-	params := []configuration.UrlParameter{
-		{
-			Key:   "chat_id",
-			Value: tempConfig.Telegram.ChatId,
-		},
-		{
-			Key:   "text",
-			Value: text,
-		},
-	}
-
-	buildedUrl := tempConfig.Telegram.ApiUrl + tempConfig.Telegram.BotToken + "/sendMessage"
-
-	_, err = client.Get(buildedUrl, &params)
-	if err != nil {
-		fmt.Println("Ошибка отправки уведомления в Telegram:", err)
+		return fmt.Errorf("не удалось отправить сообщение в Telegram: %v", err)
 	}
 
 	return nil
