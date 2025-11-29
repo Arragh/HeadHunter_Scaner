@@ -11,6 +11,7 @@ import (
 
 // TriggerAlert выводит уведомление о новых вакансиях в консоль
 func TriggerAlert(vacanciesIds []int64) {
+
 	fmt.Println("\n" + strings.Repeat("=", 50))
 	fmt.Printf("🔥 НАЙДЕНО %d НОВЫХ ВАКАНСИЙ! 🔥\n", len(vacanciesIds))
 	fmt.Println(time.Now().Format("15:04:05"))
@@ -18,16 +19,15 @@ func TriggerAlert(vacanciesIds []int64) {
 }
 
 // SendNotificationToTelegram отправляет уведомление в Telegram
-func SendNotificationToTelegram(text string, client httphandler.HttpClient) error {
-	tempConfig, err := configuration.GetConfigurartion()
-	if err != nil {
-		return fmt.Errorf("ошибка получения конфигурации: %v", err)
-	}
+func SendNotificationToTelegram(
+	config *configuration.Config,
+	client httphandler.HttpClient,
+	text string) error {
 
 	params := []configuration.UrlParameter{
 		{
 			Key:   "chat_id",
-			Value: tempConfig.Telegram.ChatId,
+			Value: config.Telegram.ChatId,
 		},
 		{
 			Key:   "text",
@@ -35,11 +35,11 @@ func SendNotificationToTelegram(text string, client httphandler.HttpClient) erro
 		},
 	}
 
-	buildedUrl := tempConfig.Telegram.ApiUrl + tempConfig.Telegram.BotToken + "/sendMessage"
+	buildedUrl := config.Telegram.ApiUrl + config.Telegram.BotToken + "/sendMessage"
 
-	_, err = client.Get(buildedUrl, &params)
+	_, err := client.Get(buildedUrl, &params)
 	if err != nil {
-		fmt.Println("Ошибка отправки уведомления в Telegram:", err)
+		return fmt.Errorf("не удалось отправить сообщение в Telegram: %v", err)
 	}
 
 	return nil

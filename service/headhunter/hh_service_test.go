@@ -27,8 +27,6 @@ func TestGetVacanciesIds(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockHttpClient := mock.NewMockHttpClient(ctrl)
-
 	want := []int64{1, 2}
 	vacancyResponse := VacancyResponse{}
 	for _, v := range want {
@@ -36,12 +34,6 @@ func TestGetVacanciesIds(t *testing.T) {
 			Id: strconv.Itoa(int(v)),
 		})
 	}
-
-	body, _ := json.Marshal(vacancyResponse)
-	mockHttpClient.
-		EXPECT().
-		Get(gomock.Any(), gomock.Any()).
-		Return(body, nil)
 
 	config := configuration.Config{
 		RequestIntervalInSeconds: 1,
@@ -55,6 +47,14 @@ func TestGetVacanciesIds(t *testing.T) {
 			},
 		},
 	}
+
+	body, _ := json.Marshal(vacancyResponse)
+
+	mockHttpClient := mock.NewMockHttpClient(ctrl)
+	mockHttpClient.
+		EXPECT().
+		Get(gomock.Any(), gomock.Any()).
+		Return(body, nil)
 
 	got, err := GetVacanciesIds(&config, mockHttpClient)
 	if err != nil {
