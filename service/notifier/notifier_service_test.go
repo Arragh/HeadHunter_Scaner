@@ -1,7 +1,6 @@
 package notifier
 
 import (
-	"hhscaner/configuration"
 	"hhscaner/test/mock"
 	"testing"
 
@@ -12,29 +11,16 @@ func TestSendNotificationToTelegram(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	config := configuration.Config{
-		Telegram: configuration.Telegram{
-			ApiUrl:   "https://mock.mock/bot",
-			BotToken: "12345:ABCDE",
-			ChatId:   "12345",
-		},
-	}
-
-	expectedUrl := config.Telegram.ApiUrl + config.Telegram.BotToken + "/sendMessage"
-	expectedParams := []configuration.UrlParameter{
-		{Key: "chat_id", Value: config.Telegram.ChatId},
-		{Key: "text", Value: "test message"},
-	}
+	baseUrl := "https://mock.mock/bot/message"
 
 	mockHttpClient := mock.NewMockHttpClient(ctrl)
 	mockHttpClient.
 		EXPECT().
 		Get(
-			gomock.Eq(expectedUrl),
-			gomock.Eq(&expectedParams),
+			gomock.Eq(baseUrl),
 		).Return([]byte(`{"ok":true}`), nil)
 
-	err := SendNotificationToTelegram(&config, mockHttpClient, "test message")
+	err := SendNotificationToTelegram(mockHttpClient, baseUrl, "test message")
 	if err != nil {
 		t.Errorf("SendNotificationToTelegram() error = %s, want nil", err)
 		return

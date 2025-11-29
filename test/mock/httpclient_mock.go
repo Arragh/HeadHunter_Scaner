@@ -5,7 +5,6 @@
 package mock
 
 import (
-	configuration "hhscaner/configuration"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -35,16 +34,16 @@ func (m *MockHttpClient) EXPECT() *MockHttpClientMockRecorder {
 }
 
 // Get mocks base method.
-func (m *MockHttpClient) Get(url string, params *[]configuration.UrlParameter) ([]byte, error) {
+func (m *MockHttpClient) Get(url string) ([]byte, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Get", url, params)
+	ret := m.ctrl.Call(m, "Get", url)
 	ret0, _ := ret[0].([]byte)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Get indicates an expected call of Get.
-func (mr *MockHttpClientMockRecorder) Get(url, params interface{}) *gomock.Call {
+func (mr *MockHttpClientMockRecorder) Get(url interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockHttpClient)(nil).Get), url, params)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockHttpClient)(nil).Get), url)
 }
