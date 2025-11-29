@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestDifference(t *testing.T) {
+func TestDifference_Valid(t *testing.T) {
 	newVacanciesIds := []int64{1, 2, 3, 4, 5}
 	oldVacanciesIds := []int64{1, 2, 3}
 	want := []int64{4, 5}
@@ -13,15 +13,15 @@ func TestDifference(t *testing.T) {
 	got := Difference(newVacanciesIds, oldVacanciesIds)
 
 	if !reflect.DeepEqual(want, got) {
-		t.Errorf("Difference() = \"%v\", want %v", got, want)
+		t.Errorf("got = \"%v\", want %v", got, want)
 	}
 }
 
-func TestParseVacanciesIds(t *testing.T) {
+func TestParseVacanciesIds_Valid(t *testing.T) {
 	vacancies := []Vacancy{
-		{Id: "123"},
-		{Id: "456"},
-		{Id: "789"},
+		{Id: "1"},
+		{Id: "2"},
+		{Id: "3"},
 	}
 
 	got, err := ParseVacanciesIds(vacancies)
@@ -29,8 +29,21 @@ func TestParseVacanciesIds(t *testing.T) {
 		t.Errorf("ошибка при парсинге вакансий: %v", err)
 	}
 
-	want := []int64{123, 456, 789}
+	want := []int64{1, 2, 3}
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("got: %v, want: %v", got, want)
+	}
+}
+
+func TestParseVacanciesIds_InValidJsonValues(t *testing.T) {
+	vacancies := []Vacancy{
+		{Id: "one"},
+		{Id: "two"},
+		{Id: "three"},
+	}
+
+	got, err := ParseVacanciesIds(vacancies)
+	if err == nil {
+		t.Errorf("ожидалась ошибка парсинга вакансий, got: %v", got)
 	}
 }
