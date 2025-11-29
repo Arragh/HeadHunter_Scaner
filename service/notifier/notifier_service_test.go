@@ -16,9 +16,8 @@ func TestSendNotificationToTelegram(t *testing.T) {
 	mockHttpClient := mock.NewMockHttpClient(ctrl)
 	mockHttpClient.
 		EXPECT().
-		Get(
-			gomock.Eq(baseUrl),
-		).Return([]byte(`{"ok":true}`), nil)
+		Get(gomock.Eq(baseUrl)).
+		Return([]byte(`{"ok":true}`), nil)
 
 	err := SendNotificationToTelegram(mockHttpClient, baseUrl, "test message")
 	if err != nil {
