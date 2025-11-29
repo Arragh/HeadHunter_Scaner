@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"hhscaner/configuration"
 	"hhscaner/service/httphandler"
+	"hhscaner/service/serializer"
 	"strconv"
 )
 
@@ -33,7 +34,7 @@ func GetVacanciesIds(config *configuration.Config, client httphandler.HttpClient
 		return nil, fmt.Errorf("ошибка получения тела ответа: %v", err)
 	}
 
-	vacancies, err := deserializeBody(body)
+	vacancies, err := serializer.Deserialize[VacancyResponse](body)
 	if err != nil {
 		return nil, fmt.Errorf("ошибка демаршалинга: %v", err)
 	}

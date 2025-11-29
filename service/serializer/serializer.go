@@ -1,13 +1,13 @@
-package headhunter
+package serializer
 
 import (
 	"encoding/json"
 	"fmt"
 )
 
-// deserializeBody делает демаршалинг тела ответа
-func deserializeBody(body []byte) (*VacancyResponse, error) {
-	var unpacked VacancyResponse
+// Deserialize десерилизует массив байт в структуру
+func Deserialize[T any](body []byte) (*T, error) {
+	var unpacked T
 
 	err := json.Unmarshal(body, &unpacked)
 	if err != nil {
