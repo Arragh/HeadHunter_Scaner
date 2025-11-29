@@ -7,11 +7,12 @@ import (
 	"github.com/golang/mock/gomock"
 )
 
-func TestSendNotificationToTelegram(t *testing.T) {
+func TestSendNotificationToTelegram_Valid(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
 	baseUrl := "https://mock.mock/bot/message"
+	message := "test message"
 
 	mockHttpClient := mock.NewMockHttpClient(ctrl)
 	mockHttpClient.
@@ -19,7 +20,7 @@ func TestSendNotificationToTelegram(t *testing.T) {
 		Get(gomock.Eq(baseUrl)).
 		Return([]byte(`{"ok":true}`), nil)
 
-	err := SendNotificationToTelegram(mockHttpClient, baseUrl, "test message")
+	err := SendNotificationToTelegram(mockHttpClient, baseUrl, message)
 	if err != nil {
 		t.Errorf("SendNotificationToTelegram() error = %s, want nil", err)
 		return
