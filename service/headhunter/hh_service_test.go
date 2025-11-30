@@ -13,7 +13,7 @@ func TestDifference_Valid(t *testing.T) {
 	got := Difference(newVacanciesIds, oldVacanciesIds)
 
 	if !reflect.DeepEqual(want, got) {
-		t.Errorf("got = \"%v\", want %v", got, want)
+		t.Fatalf("got = \"%v\", want %v", got, want)
 	}
 }
 
@@ -26,12 +26,12 @@ func TestParseVacanciesIds_Valid(t *testing.T) {
 
 	got, err := ParseVacanciesIds(vacancies)
 	if err != nil {
-		t.Errorf("ошибка при парсинге вакансий: %v", err)
+		t.Fatalf("ошибка при парсинге вакансий: %v", err)
 	}
 
 	want := []int64{1, 2, 3}
 	if !reflect.DeepEqual(got, want) {
-		t.Errorf("got: %v, want: %v", got, want)
+		t.Fatalf("got: %v, want: %v", got, want)
 	}
 }
 
@@ -44,6 +44,6 @@ func TestParseVacanciesIds_InValidJsonValues(t *testing.T) {
 
 	got, err := ParseVacanciesIds(vacancies)
 	if err == nil {
-		t.Errorf("ожидалась ошибка парсинга вакансий, got: %v", got)
+		t.Fatalf("ожидалась ошибка парсинга вакансий, got: %v", got)
 	}
 }
