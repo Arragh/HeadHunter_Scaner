@@ -12,7 +12,8 @@ import (
 	"time"
 )
 
-var fileName string = "viewed_vacancies.txt"
+const fileName string = "viewed_vacancies.txt"
+
 var triesCount int = 1
 
 func main() {
