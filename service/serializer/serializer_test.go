@@ -9,7 +9,7 @@ import (
 func TestDeserialize_Valid(t *testing.T) {
 	serializedBody, err := json.Marshal(TestStruct{Field: "test"})
 	if err != nil {
-		t.Errorf("ошибка сериализации тестового body %v", err)
+		t.Fatalf("ошибка сериализации тестового body %v", err)
 	}
 
 	deserialized, err := Deserialize[TestStruct](serializedBody)
@@ -26,14 +26,14 @@ func TestDeserialize_Valid(t *testing.T) {
 	got := *deserialized
 
 	if !reflect.DeepEqual(got, want) {
-		t.Errorf("Deserialize() = %v, want %v", got, want)
+		t.Fatalf("got = %v, want %v", got, want)
 	}
 }
 
 func TestDeserialize_InvalidType(t *testing.T) {
 	_, err := Deserialize[TestStruct]([]byte("12345"))
 	if err == nil {
-		t.Error("ожидалась ошибка десериализации из-за неверного типа")
+		t.Fatal("ожидалась ошибка десериализации из-за неверного типа")
 	}
 }
 
@@ -47,7 +47,7 @@ func TestDeserialize_InvalidBody(t *testing.T) {
 func TestDeserialize_NilBody(t *testing.T) {
 	_, err := Deserialize[TestStruct](nil)
 	if err == nil {
-		t.Error("ожидалась ошибка десериализации из-за nil-body")
+		t.Fatal("ожидалась ошибка десериализации из-за nil-body")
 	}
 }
 

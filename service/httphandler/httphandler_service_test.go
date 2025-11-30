@@ -26,11 +26,11 @@ func TestBuildUrl_Valid(t *testing.T) {
 
 	got, err := BuildUrl(urlString, &params)
 	if err != nil {
-		t.Errorf("ошибка построения Url: %v", err)
+		t.Fatalf("ошибка построения Url: %v", err)
 	}
 
 	if got != want {
-		t.Errorf("got = %v, want %v", got, want)
+		t.Fatalf("got = %v, want %v", got, want)
 	}
 }
 
@@ -53,6 +53,6 @@ func TestBuildUrl_InvalidUrl(t *testing.T) {
 
 	got, err := BuildUrl(urlString, &params)
 	if err == nil {
-		t.Errorf("ожидалась ошибка построения Url, got: %v", got)
+		t.Fatalf("ожидалась ошибка построения Url, got: %v", got)
 	}
 }

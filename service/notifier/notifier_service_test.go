@@ -22,7 +22,6 @@ func TestSendNotificationToTelegram_Valid(t *testing.T) {
 
 	err := SendNotificationToTelegram(mockHttpClient, baseUrl, message)
 	if err != nil {
-		t.Errorf("SendNotificationToTelegram() error = %s, want nil", err)
-		return
+		t.Fatalf("SendNotificationToTelegram() error = %s, want nil", err)
 	}
 }
