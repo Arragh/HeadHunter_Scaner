@@ -14,12 +14,12 @@ type DefaultHttpClient struct{}
 func (c *DefaultHttpClient) Get(urlString string) ([]byte, error) {
 	resp, err := http.Get(urlString)
 	if err != nil {
-		fmt.Println("Не удалось получить ответ от удаленного сервера:", err)
+		return nil, fmt.Errorf("не удалось получить ответ от удаленного сервера: %s", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		fmt.Println("Удаленный сервер ответил с ошибкой:", resp.StatusCode)
+		return nil, fmt.Errorf("удаленный сервер ответил с ошибкой: %d", resp.StatusCode)
 	}
 
 	body, err := io.ReadAll(resp.Body)
