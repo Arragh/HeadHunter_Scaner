@@ -12,9 +12,9 @@ import (
 	"time"
 )
 
-const fileName string = "viewed_vacancies.txt"
-
-var triesCount int = 1
+const (
+	fileName string = "viewed_vacancies.txt"
+)
 
 func main() {
 	config, err := configuration.GetConfigurartion()
@@ -24,6 +24,7 @@ func main() {
 	}
 
 	httpClient := &httphandler.DefaultHttpClient{}
+	var triesCount int = 1
 
 	for {
 		fmt.Printf("Попытка %d\n", triesCount)
