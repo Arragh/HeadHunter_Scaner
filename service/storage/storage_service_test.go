@@ -3,7 +3,7 @@ package storage
 import (
 	"fmt"
 	"os"
-	"reflect"
+	"slices"
 	"testing"
 )
 
@@ -21,7 +21,7 @@ func TestReadData_Valid(t *testing.T) {
 	}
 
 	want := []int64{1, 2, 3}
-	if !reflect.DeepEqual(got, want) {
+	if !slices.Equal(got, want) {
 		t.Fatalf("got %v, want %v", got, want)
 	}
 }

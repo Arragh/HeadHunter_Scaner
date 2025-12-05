@@ -1,7 +1,7 @@
 package headhunter
 
 import (
-	"reflect"
+	"slices"
 	"testing"
 )
 
@@ -12,7 +12,7 @@ func TestDifference_Valid(t *testing.T) {
 
 	got := Difference(newVacanciesIds, oldVacanciesIds)
 
-	if !reflect.DeepEqual(want, got) {
+	if !slices.Equal(want, got) {
 		t.Fatalf("got = \"%v\", want %v", got, want)
 	}
 }
@@ -30,7 +30,7 @@ func TestParseVacanciesIds_Valid(t *testing.T) {
 	}
 
 	want := []int64{1, 2, 3}
-	if !reflect.DeepEqual(got, want) {
+	if !slices.Equal(got, want) {
 		t.Fatalf("got: %v, want: %v", got, want)
 	}
 }
